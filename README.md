@@ -21,6 +21,7 @@ In powershell execute:
 ```powershell
 .\UnblockFiles.ps1
 ```
+This will only allow our files to be executed, for the current process it will enable ExecutionPolicy unrestricted. After closing the current powershell session the normal ExecutionPolicy will be enabled again.
 
 ## Step 1. Requirements check
 The requirements are [documented](https://docs.coveo.com/en/23/cloud-v2-developers/requirements).
