@@ -169,6 +169,30 @@ else {
 write( "=========================================" )
 
 
+write( "Step 6. Checking Docker Log for problems with MySql." )
+$valid = $true
+try {
+  $result = docker logs --since=24h $mysqlid
+  If ($result) {
+    foreach ( $work in $result) {
+      if ($work -like "*cannot be started*" ) {
+        $valid = $false
+      }
+    }
+   
+  } 
+}
+catch {
+}
+If ($valid) {
+  write( "Step 6. Valid" )
+}
+else {
+  write( "Step 6. FAILED, MySql has problems, re-install." )
+  $failures = $true
+}
+write( "=========================================" )
+
 
 if ($failures) {
   write( "" )

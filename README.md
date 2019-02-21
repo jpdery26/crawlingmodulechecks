@@ -16,6 +16,12 @@ Navigate to the directory check.
 cd \check
 ```
 
+### Unblock the files so they can be executed
+In powershell execute:
+```powershell
+.\UnblockFiles.ps1
+```
+
 ## Step 1. Requirements check
 The requirements are [documented](https://docs.coveo.com/en/23/cloud-v2-developers/requirements).
 
