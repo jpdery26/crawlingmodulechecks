@@ -179,6 +179,7 @@ if ($failures) {
 
 }
 else {
+  write( "" )
   write( "You have no failures, proceed with adding content!." )
   write( "See: https://docs.coveo.com/en/170/cloud-v2-developers/creating-a-crawling-module-source" )
   write( "" )

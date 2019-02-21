@@ -181,6 +181,7 @@ if ($failures) {
 
 }
 else {
+  write( "" )
   write( "You have no failures, proceed with the installation." )
   write( "See: https://docs.coveo.com/en/96/cloud-v2-developers/installing-docker#installing-docker-enterprise-edition" )
   write( "" )

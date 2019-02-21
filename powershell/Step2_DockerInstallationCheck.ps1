@@ -145,6 +145,7 @@ if ($failures) {
 
 }
 else {
+  write( "" )
   write( "You have no failures, proceed with the installation of Maestro." )
   write( "See: https://docs.coveo.com/en/71/cloud-v2-developers/installing-maestro" )
   write( "" )
