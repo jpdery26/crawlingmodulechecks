@@ -45,13 +45,16 @@ In case you need support, always provide the Step2_Log.txt to our support depart
 Only when all checks are valid, proceed to [Maestro Installation](https://docs.coveo.com/en/71/cloud-v2-developers/installing-maestro).
 
 ## Step 3. Final installation check
-(Coming) When Maestro is installed, the Machine is connected to the Coveo Cloud Platform, and the workers are started.
+When Maestro is installed, the Machine is connected to the Coveo Cloud Platform, and the workers are started.
+
 The final installation check script will check if the virtual machine is working properly.
 ```powershell
 .\Step3_FinalInstallationCheck.ps1
 ```
 
-The script will write the output to the console, and to the file Step2_Log.txt.
+The script will write the output to the console, and to the file Step3_Log.txt.
 
-In case you need support, always provide the Step2_Log.txt to our support department.
+In case you need support, always provide the Step3_Log.txt to our support department.
+
+When all checks are valid, you are ready to add [content](https://docs.coveo.com/en/170/cloud-v2-developers/creating-a-crawling-module-source).
 

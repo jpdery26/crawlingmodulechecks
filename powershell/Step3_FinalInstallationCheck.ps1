@@ -1,7 +1,7 @@
 #*****************************************************************
-# Script to Check the Docker installation for the Crawling Modules
+# Script to Check the Final installation for the Crawling Modules
 #
-# Output: Step2_Log.txt
+# Output: Step3_Log.txt
 #
 # Coveo
 # Wim Nijmeijer
@@ -10,16 +10,16 @@
 function write() {
   Param ([string]$text)
   Write-Host $text
-  $text | Add-Content 'Step2_log.txt'
+  $text | Add-Content 'Step3_log.txt'
 }
 
-"" | Set-Content 'Step2_log.txt'
+"" | Set-Content 'Step3_log.txt'
 $a = Get-Date -Format F
 
 write( "" )
 write( "" )
 write( "======================================================" )
-write( "Coveo - Crawling Modules - Docker Installation Checker" )
+write( "Coveo - Crawling Modules - Final Installation Checker" )
 write( "  V1.2" )
 write( "======================================================" )
 write( "" )
@@ -48,12 +48,16 @@ write( "" )
 write( "=================================================" )
 $failures = $false
 $valid = $false 
-write( "Step 1. Checking Docker version." )
+$mysqlid = ""
+write( "Step 1. Mysql worker running." )
 
 try {
-  $version = docker version --format '{{json .}}' | ConvertFrom-Json
-  If ($version.Client.version = $version.Server.version) {
-    $valid = $true
+  $workers = docker ps -a --no-trunc  --format '{{json .}}' | ConvertFrom-Json
+  foreach ( $work in $workers) {
+    if ($work.Names -like "*crawlers_db*" -and $work.Status.StartsWith("Up")) {
+      $valid = $true
+      $mysqlid = $work.ID
+    }
   }
 }
 catch {
@@ -62,37 +66,48 @@ If ($valid) {
   write( "Step 1. Valid" )
 }
 else {
-  write( "Step 1. FAILED, Docker Client and Server have different versions." )
+  write( "Step 1. FAILED, MySQL (Crawlers_db) is not running." )
   $failures = $true
 }
 write( "=========================================" )
 
-write( "Step 2. Checking Docker Windows Mode." )
+write( "Step 2. Checking At least one worker." )
 
 $valid = $false
-if ($version) {
-  If ($version.Client.Arch = $version.Server.Arch -and $version.Client.Arch -eq "amd64" -and $version.Client.Os -eq "windows") {
-    $valid = $true
+
+try {
+  $workers = docker ps -a --format '{{json .}}' | ConvertFrom-Json
+  foreach ( $work in $workers) {
+    if ($work.Names -like "*worker_service*" -and $work.Status.StartsWith("Up")) {
+      $valid = $true
+    }
   }
+}
+catch {
 }
 if ($valid) {
   write( "Step 2. Valid" )
 }
 else {
-  write( "Client Arch: $($version.Client.Arch)")
-  write( "Client Os  : $($version.Client.Os)")
-  write( "Step 2. FAILED, Docker Client & Server are not properly configured. Arch should be amd64 and Client should be windows.")
+  write( "Step 2. FAILED, No worker is running.")
   $failures = $true
 }
 write( "=========================================" )
 
 
-write( "Step 3. Checking if docker can run." )
+write( "Step 3. Checking Crawling Module Service is running." )
 $valid = $false
 try {
-  $result = docker run hello-world
-  If ($result -like "*Hello from Docker*") {
+  $result = Get-Service | Where-Object {$_.Name -like  "*CrawlingModules*"}
+  If ($result) {
     $valid = $true
+    if ($result.Status -eq "Running"){
+
+    }
+    else {
+      $valid = $false
+      write("Step 3. FAILED, Coveo.CrawlingModules Service is NOT started.")
+    }
   } 
 }
 catch {
@@ -101,49 +116,71 @@ If ($valid) {
   write( "Step 3. Valid" )
 }
 else {
-  write( "Step 3. FAILED, Docker does not run properly, re-install." )
+  write( "Step 3. FAILED, Coveo.CrawlingModules Service is not there or not started, re-install." )
   $failures = $true
 }
 write( "=========================================" )
 
 
-
-write( "Step 4. Checking if swarm can be created." )
-$ipV4 = Test-Connection -ComputerName (hostname) -Count 1  | Select -ExpandProperty IPV4Address
-# $ipV4.IPAddressToString
-write( "On IP: $($ipV4.IPAddressToString)" )
+write( "Step 4. Checking Docker Service is running." )
 $valid = $false
 try {
-  $result = docker swarm init --advertise-addr $ipV4.IPAddressToString
+  $result = Get-Service | Where-Object {$_.Name -like  "*Docker*"}
+  If ($result) {
+    $valid = $true
+    if ($result.Status -eq "Running"){
 
-  If ($result -contains "Swarm initialized.") {
-    $valid = $true  
-  }  
+    }
+    else {
+      $valid = $false
+      write("Step 4. FAILED, Docker Service is NOT started.")
+    }
+  } 
 }
 catch {
 }
-
 If ($valid) {
   write( "Step 4. Valid" )
-  docker swarm leave --force
 }
 else {
-  write( "Step 4. FAILED, Docker does not run properly, Swarm could not be created. Re-install." )
+  write( "Step 4. FAILED, Docker Service is not there or is not started, re-install." )
   $failures = $true
 }
 write( "=========================================" )
+
+
+write( "Step 5. Checking Event Log for problems with MySql." )
+$valid = $true
+try {
+  $result = Get-EventLog -Log "Application" -Source "docker" -EntryType "Error"  -After (Get-Date).AddHours(-24) | Where-Object {$_.Message -like  "*$mysqlid*"}
+  If ($result) {
+    $valid = $false
+  } 
+}
+catch {
+}
+If ($valid) {
+  write( "Step 5. Valid" )
+}
+else {
+  write( "Step 5. FAILED, MySql has problems, re-install." )
+  $failures = $true
+}
+write( "=========================================" )
+
+
 
 if ($failures) {
   write( "" )
   write( "=========================================================================" )
-  write( "! You have failures, fix them first before starting the docker workers. !" )
+  write( "! You have failures, fix them first before adding content. !" )
   write( "=========================================================================" )
   write( "" )
 
 }
 else {
-  write( "You have no failures, proceed with the installation of Maestro." )
-  write( "See: https://docs.coveo.com/en/71/cloud-v2-developers/installing-maestro" )
+  write( "You have no failures, proceed with adding content!." )
+  write( "See: https://docs.coveo.com/en/170/cloud-v2-developers/creating-a-crawling-module-source" )
   write( "" )
 
 }

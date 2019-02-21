@@ -116,7 +116,7 @@ $valid = $false
 try {
   $result = docker swarm init --advertise-addr $ipV4.IPAddressToString
 
-  If ($result -contains "Swarm initialized.") {
+  If ($result -like "*Swarm initialized.*") {
     $valid = $true  
   }  
 }
@@ -136,7 +136,7 @@ write( "=========================================" )
 if ($failures) {
   write( "" )
   write( "=========================================================================" )
-  write( "! You have failures, fix them first before starting the docker workers. !" )
+  write( "! You have failures, fix them first before installing Maestro. !" )
   write( "=========================================================================" )
   write( "" )
 
