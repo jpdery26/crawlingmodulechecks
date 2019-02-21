@@ -116,16 +116,19 @@ $valid = $false
 try {
   $result = docker swarm init --advertise-addr $ipV4.IPAddressToString
 
-  If ($result -like "*Swarm initialized.*") {
+  If ($result -like "*Swarm initialized:*") {
     $valid = $true  
   }  
+  else {
+    write("Step 4. Error: $result")
+  }
 }
 catch {
 }
 
 If ($valid) {
   write( "Step 4. Valid" )
-  docker swarm leave --force
+  $result = docker swarm leave --force
 }
 else {
   write( "Step 4. FAILED, Docker does not run properly, Swarm could not be created. Re-install." )
