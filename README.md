@@ -26,6 +26,9 @@ To check if your Virtual Machine conforms to the requirements:
 
 The script will write the output to the console, and to the file Step1_Log.txt.
 
+In case you need support, always provide the Step1_Log.txt to our support department.
+
+
 Only when all checks are valid, proceed to [Docker Installation](https://docs.coveo.com/en/96/cloud-v2-developers/installing-docker#installing-docker-enterprise-edition).
 
 ## Step 2. Docker Installation check
@@ -35,6 +38,10 @@ After docker is installed, the next script will check if the installation was su
 ```
 
 The script will write the output to the console, and to the file Step2_Log.txt.
+
+In case you need support, always provide the Step2_Log.txt to our support department.
+
+
 Only when all checks are valid, proceed to [Maestro Installation](https://docs.coveo.com/en/71/cloud-v2-developers/installing-maestro).
 
 ## Step 3. Final installation check
@@ -43,4 +50,8 @@ The final installation check script will check if the virtual machine is working
 ```powershell
 .\Step3_FinalInstallationCheck.ps1
 ```
+
+The script will write the output to the console, and to the file Step2_Log.txt.
+
+In case you need support, always provide the Step2_Log.txt to our support department.
 
