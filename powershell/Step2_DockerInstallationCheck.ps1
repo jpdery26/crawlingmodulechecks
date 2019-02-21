@@ -7,25 +7,25 @@
 # Wim Nijmeijer
 #*****************************************************************
 
-function write() {
+function writeln() {
   Param ([string]$text)
   Write-Host $text
-  $text | Add-Content 'Step2_log.txt'
+  Add-Content 'Step2_log.txt' "$text"
 }
 
 "" | Set-Content 'Step2_log.txt'
 $a = Get-Date -Format F
 
-write( "" )
-write( "" )
-write( "======================================================" )
-write( "Coveo - Crawling Modules - Docker Installation Checker" )
-write( "  V1.2" )
-write( "======================================================" )
-write( "" )
-write( "Created on  : $a" )
-write( "" )
-write( "Machine data:" )
+writeln( "" )
+writeln( "" )
+writeln( "======================================================" )
+writeln( "Coveo - Crawling Modules - Docker Installation Checker" )
+writeln( "  V1.2" )
+writeln( "======================================================" )
+writeln( "" )
+writeln( "Created on  : $a" )
+writeln( "" )
+writeln( "Machine data:" )
 $cs = Get-WmiObject -class Win32_ComputerSystem
 $Cores = $cs.numberoflogicalprocessors
 $Mem = [math]::Ceiling($cs.TotalPhysicalMemory / 1024 / 1024 / 1024)
@@ -33,22 +33,22 @@ $ipV4 = Test-Connection -ComputerName (hostname) -Count 1  | Select -ExpandPrope
 #Check Proxy
 $proxy = [Environment]::GetEnvironmentVariable("HTTP_PROXY", [EnvironmentVariableTarget]::Machine)
 $proxys = [Environment]::GetEnvironmentVariable("HTTPS_PROXY", [EnvironmentVariableTarget]::Machine)
-write( "  Name       : $($cs.Name)" )
-write( "  No of Cores: $Cores" )
-write( "  RAM        : $Mem Gb" )
-write( "  Domain     : $($cs.Domain)")
-write( "  IPv4       : $($ipV4.IPAddressToString)")
+writeln( "  Name       : $($cs.Name)" )
+writeln( "  No of Cores: $Cores" )
+writeln( "  RAM        : $Mem Gb" )
+writeln( "  Domain     : $($cs.Domain)")
+writeln( "  IPv4       : $($ipV4.IPAddressToString)")
 if ($proxy) {
-  write( "  Proxy HTTP : $proxy" )
+  writeln( "  Proxy HTTP : $proxy" )
 }
 if ($proxys) {
-  write( "  Proxy HTTPS: $proxys" )
+  writeln( "  Proxy HTTPS: $proxys" )
 }
-write( "" )
-write( "=================================================" )
+writeln( "" )
+writeln( "=================================================" )
 $failures = $false
 $valid = $false 
-write( "Step 1. Checking Docker version." )
+writeln( "Step 1. Checking Docker version." )
 
 try {
   $version = docker version --format '{{json .}}' | ConvertFrom-Json
@@ -59,15 +59,15 @@ try {
 catch {
 }
 If ($valid) {
-  write( "Step 1. Valid" )
+  writeln( "Step 1. Valid" )
 }
 else {
-  write( "Step 1. FAILED, Docker Client and Server have different versions." )
+  writeln( "Step 1. FAILED, Docker Client and Server have different versions." )
   $failures = $true
 }
-write( "=========================================" )
+writeln( "=========================================" )
 
-write( "Step 2. Checking Docker Windows Mode." )
+writeln( "Step 2. Checking Docker Windows Mode." )
 
 $valid = $false
 if ($version) {
@@ -76,18 +76,18 @@ if ($version) {
   }
 }
 if ($valid) {
-  write( "Step 2. Valid" )
+  writeln( "Step 2. Valid" )
 }
 else {
-  write( "Client Arch: $($version.Client.Arch)")
-  write( "Client Os  : $($version.Client.Os)")
-  write( "Step 2. FAILED, Docker Client & Server are not properly configured. Arch should be amd64 and Client should be windows.")
+  writeln( "Client Arch: $($version.Client.Arch)")
+  writeln( "Client Os  : $($version.Client.Os)")
+  writeln( "Step 2. FAILED, Docker Client & Server are not properly configured. Arch should be amd64 and Client should be windows.")
   $failures = $true
 }
-write( "=========================================" )
+writeln( "=========================================" )
 
 
-write( "Step 3. Checking if docker can run." )
+writeln( "Step 3. Checking if docker can run." )
 $valid = $false
 try {
   $result = docker run hello-world
@@ -98,20 +98,20 @@ try {
 catch {
 }
 If ($valid) {
-  write( "Step 3. Valid" )
+  writeln( "Step 3. Valid" )
 }
 else {
-  write( "Step 3. FAILED, Docker does not run properly, re-install." )
+  writeln( "Step 3. FAILED, Docker does not run properly, re-install." )
   $failures = $true
 }
-write( "=========================================" )
+writeln( "=========================================" )
 
 
 
-write( "Step 4. Checking if swarm can be created." )
+writeln( "Step 4. Checking if swarm can be created." )
 $ipV4 = Test-Connection -ComputerName (hostname) -Count 1  | Select -ExpandProperty IPV4Address
 # $ipV4.IPAddressToString
-write( "On IP: $($ipV4.IPAddressToString)" )
+writeln( "On IP: $($ipV4.IPAddressToString)" )
 $valid = $false
 try {
   $result = docker swarm init --advertise-addr $ipV4.IPAddressToString
@@ -120,34 +120,34 @@ try {
     $valid = $true  
   }  
   else {
-    write("Step 4. Error: $result")
+    writeln("Step 4. Error: $result")
   }
 }
 catch {
 }
 
 If ($valid) {
-  write( "Step 4. Valid" )
+  writeln( "Step 4. Valid" )
   $result = docker swarm leave --force
 }
 else {
-  write( "Step 4. FAILED, Docker does not run properly, Swarm could not be created. Re-install." )
+  writeln( "Step 4. FAILED, Docker does not run properly, Swarm could not be created. Re-install." )
   $failures = $true
 }
-write( "=========================================" )
+writeln( "=========================================" )
 
 if ($failures) {
-  write( "" )
-  write( "=========================================================================" )
-  write( "! You have failures, fix them first before installing Maestro. !" )
-  write( "=========================================================================" )
-  write( "" )
+  writeln( "" )
+  writeln( "=========================================================================" )
+  writeln( "! You have failures, fix them first before installing Maestro. !" )
+  writeln( "=========================================================================" )
+  writeln( "" )
 
 }
 else {
-  write( "" )
-  write( "You have no failures, proceed with the installation of Maestro." )
-  write( "See: https://docs.coveo.com/en/71/cloud-v2-developers/installing-maestro" )
-  write( "" )
+  writeln( "" )
+  writeln( "You have no failures, proceed with the installation of Maestro." )
+  writeln( "See: https://docs.coveo.com/en/71/cloud-v2-developers/installing-maestro" )
+  writeln( "" )
 
 }
