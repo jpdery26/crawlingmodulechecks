@@ -45,8 +45,12 @@ After docker is installed, the next script will check if the installation was su
 ```
 
 The script will write the output to the console, and to the file Step2_Log.txt.
+It will also write the files:
+DockerInfo_Log.txt
+DockerVersion_Log.txt
+DockerNetwork_Log.txt
 
-In case you need support, always provide the Step2_Log.txt to our support department.
+In case you need support, always provide the *_Log.txt files to our support department.
 
 
 Only when all checks are valid, proceed to [Maestro Installation](https://docs.coveo.com/en/71/cloud-v2-developers/installing-maestro).
