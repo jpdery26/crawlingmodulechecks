@@ -97,9 +97,10 @@ writeln  "========================================="
 writeln  "Step 3. Checking if docker can run."
 $valid = $false
 try {
-  $result = docker run hello-world
+  $result = docker run --name hello-world-container hello-world
   If ($result -like "*Hello from Docker*") {
     $valid = $true
+    $result = docker rm hello-world-container
   } 
 }
 catch {

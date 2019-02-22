@@ -253,7 +253,9 @@ else {
     $failures = $true
   }
   
-
+writeln "Step 12. Removing all C:\Windows\Temp\hcs* folders "
+Remove-Item "c:\windows\temp\hcs*" -Force -Recurse -ErrorAction SilentlyContinue 
+writeln "Step 12. Done" Green
 
 if ($failures) {
   writeln ""
