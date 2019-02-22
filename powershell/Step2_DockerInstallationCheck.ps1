@@ -362,8 +362,8 @@ $networks = $networksListOutput | Foreach-object {
   if ($valid){
     writeln  "Step 10. Valid" Green
   } else {
-    writeln  "Step 10. FAILED, Check your network configuration." Red
-    $failures = $true
+    writeln  "Step 10. WARNING FAILED, Check your network configuration." Red
+    #$failures = $true
   }
 
 if ($failures) {

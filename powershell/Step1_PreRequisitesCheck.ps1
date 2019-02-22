@@ -179,6 +179,82 @@ else {
   $failures = $true
 }
 
+
+
+  $buildNumber = (Get-CimInstance -Namespace root\cimv2 Win32_OperatingSystem).BuildNumber
+  
+  writeln "========================================="
+
+
+  writeln "Step 8. OS: Is Windows 10 Anniversary Update or Windows Server 2016 "
+  
+  if ($buildNumber -ge 14393) {
+    writeln "Step 8. Valid" Green
+  }
+  else {
+    writeln "Step 8. FAILED, Install the proper OS." Red
+    $failures = $true
+  }
+
+  writeln "========================================="
+
+
+  writeln "Step 9. OS: Has KB3192366, KB3194496, or later installed if running Windows build 14393 "
+  
+  if ($buildNumber -eq 14393 -and  (Get-ItemProperty -Path 'HKLM:\software\Microsoft\Windows NT\CurrentVersion' -Name UBR).UBR -gt 351) {
+    writeln "Step 9. Valid" Green
+  }
+  else {
+    if ($buildNumber -eq 14393){
+    writeln "Step 9. FAILED, Install the proper OS." Red
+    $failures = $true
+    }
+    else {
+      writeln "Step 9. Valid" Green
+    }
+  }
+
+  writeln "========================================="
+
+
+  writeln "Step 10. OS: Is not a build with blocking issues "
+  
+  if ($buildNumber -ne 14391 -and $buildNumber -ne 14936) {
+    writeln "Step 10. Valid" Green
+  }
+  else {
+    writeln "Step 10. FAILED, Install the proper OS." Red
+    $failures = $true
+  }
+  
+
+  writeln "========================================="
+
+
+  writeln "Step 11 OS: Has 'Containers' feature installed "
+  $valid = $false
+  if (((Get-ComputerInfo).WindowsInstallationType) -eq "Client") {
+    if ((Get-WindowsOptionalFeature -Online -FeatureName Containers).State -eq  "Enabled"){
+      $valid = $true
+    }
+}
+else {
+    if ((Get-WindowsFeature -Name Containers).InstallState -eq "Installed")
+    {
+      $valid = $true
+    }
+}
+
+  if ($valid) {
+    writeln "Step 11. Valid" Green
+  }
+  else {
+    writeln "Step 11. FAILED, Install the 'containers' Feature." Red
+    $failures = $true
+  }
+  
+
+
 if ($failures) {
   writeln ""
   writeln "========================================================================="
