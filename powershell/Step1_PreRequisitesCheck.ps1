@@ -60,7 +60,7 @@ writeln ""
 writeln ""
 writeln "================================================="
 writeln "Coveo - Crawling Modules - Pre Requisites Checker"
-writeln "  V1.4"
+writeln "  V1.5"
 writeln "================================================="
 writeln ""
 writeln "Created on  : $a"
@@ -186,9 +186,9 @@ else {
   writeln "========================================="
 
 
-  writeln "Step 8. OS: Is Windows 10 Anniversary Update or Windows Server 2016 "
+  writeln "Step 8. OS: Is Windows Server 2016, minimal build 10586 "
   
-  if ($buildNumber -ge 14393) {
+  if ($buildNumber -ge 10586) {
     writeln "Step 8. Valid" Green
   }
   else {

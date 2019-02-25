@@ -26,7 +26,7 @@ writeln  ""
 writeln  ""
 writeln  "======================================================"
 writeln  "Coveo - Crawling Modules - Docker Installation Checker"
-writeln  "  V1.4"
+writeln  "  V1.5"
 writeln  "======================================================"
 writeln  ""
 writeln  "Created on  : $a"
@@ -117,30 +117,46 @@ writeln  "========================================="
 
 
 writeln  "Step 4. Checking if swarm can be created."
-$ipV4 = Test-Connection -ComputerName (hostname) -Count 1  | Select -ExpandProperty IPV4Address
-# $ipV4.IPAddressToString
-writeln  "On IP: $($ipV4.IPAddressToString)"
+#First check if there is already a swarm
 $valid = $false
-try {
-  $result = docker swarm init --advertise-addr $ipV4.IPAddressToString
-
-  If ($result -like "*Swarm initialized:*") {
-    $valid = $true  
-  }  
-  else {
-    #writeln "Step 4. Error: $result" 
+try{
+  $res=docker service ls
+  if ($res -ne $null){
+    $valid = $true
+    writeln  "Step 4. Valid, swarm is already running." Green
   }
 }
-catch {
+catch{
+  $valid = $false
 }
+if ($valid -eq $false){
+  $ipV4 = Test-Connection -ComputerName (hostname) -Count 1  | Select -ExpandProperty IPV4Address
+  # $ipV4.IPAddressToString
+  writeln  "On IP: $($ipV4.IPAddressToString)"
+  $valid = $false
+  try {
+    $result = docker swarm init --advertise-addr $ipV4.IPAddressToString
 
-If ($valid) {
-  writeln  "Step 4. Valid" Green
-  $result = docker swarm leave --force
-}
-else {
-  writeln  "Step 4. FAILED, Docker does not run properly, Swarm could not be created. Re-install." Red
-  $failures = $true
+    If ($result -like "*Swarm initialized:*" -or $result -like "*already part of a swarm*") {
+      $valid = $true  
+    }  
+    else {
+      #writeln "Step 4. Error: $result" 
+    }
+  }
+  catch {
+  }
+
+  If ($valid) {
+    writeln  "Step 4. Valid" Green
+    If ($result -like "*Swarm initialized:*") {
+        $result = docker swarm leave --force
+    }
+  }
+  else {
+    writeln  "Step 4. FAILED, Docker does not run properly, Swarm could not be created. Re-install." Red
+    $failures = $true
+  }
 }
 writeln  "========================================="
 
