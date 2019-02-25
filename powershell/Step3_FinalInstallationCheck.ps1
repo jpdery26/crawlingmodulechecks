@@ -26,7 +26,7 @@ writeln ""
 writeln ""
 writeln "======================================================"
 writeln "Coveo - Crawling Modules - Final Installation Checker"
-writeln "  V1.4"
+writeln "  V1.5"
 writeln "======================================================"
 writeln ""
 writeln "Created on  : $a"
@@ -50,12 +50,69 @@ if ($proxy) {
 if ($proxys) {
   writeln "  Proxy HTTPS: $proxys"
 }
+
+
 writeln ""
 writeln "================================================="
 $failures = $false
 $valid = $false 
 $mysqlid = ""
-writeln "Step 1. Mysql worker running."
+
+writeln "Step 1. Checking Crawling Module Service is running."
+$valid = $false
+try {
+  $result = Get-Service | Where-Object {$_.Name -like  "*CrawlingModules*"}
+  If ($result) {
+    $valid = $true
+    if ($result.Status -eq "Running"){
+
+    }
+    else {
+      $valid = $false
+      writeln "Step 1. FAILED, Coveo.CrawlingModules Service is NOT started." Red
+    }
+  } 
+}
+catch {
+}
+If ($valid) {
+  writeln "Step 1. Valid" Green
+}
+else {
+  writeln "Step 1. FAILED, Coveo.CrawlingModules Service is not there or not started, re-install." Red
+  $failures = $true
+}
+writeln "========================================="
+
+
+writeln "Step 2. Checking Docker Service is running."
+$valid = $false
+try {
+  $result = Get-Service | Where-Object {$_.Name -like  "*Docker*"}
+  If ($result) {
+    $valid = $true
+    if ($result.Status -eq "Running"){
+
+    }
+    else {
+      $valid = $false
+      writeln "Step 2. FAILED, Docker Service is NOT started." Red
+    }
+  } 
+}
+catch {
+}
+If ($valid) {
+  writeln "Step 2. Valid" Green
+}
+else {
+  writeln "Step 2. FAILED, Docker Service is not there or is not started, re-install." Red
+  $failures = $true
+}
+writeln "========================================="
+
+
+writeln "Step 3. Mysql worker running."
 
 try {
   $workers = docker ps -a --no-trunc  --format '{{json .}}' | ConvertFrom-Json
@@ -69,15 +126,15 @@ try {
 catch {
 }
 If ($valid) {
-  writeln "Step 1. Valid" Green
+  writeln "Step 3. Valid" Green
 }
 else {
-  writeln "Step 1. FAILED, MySQL (Crawlers_db) is not running." Red
+  writeln "Step 3. FAILED, MySQL (Crawlers_db) is not running." Red
   $failures = $true
 }
 writeln "========================================="
 
-writeln "Step 2. Checking At least one worker."
+writeln "Step 4. Checking At least one worker."
 
 $valid = $false
 
@@ -92,67 +149,14 @@ try {
 catch {
 }
 if ($valid) {
-  writeln "Step 2. Valid" Green
-}
-else {
-  writeln "Step 2. FAILED, No worker is running." Red
-  $failures = $true
-}
-writeln "========================================="
-
-
-writeln "Step 3. Checking Crawling Module Service is running."
-$valid = $false
-try {
-  $result = Get-Service | Where-Object {$_.Name -like  "*CrawlingModules*"}
-  If ($result) {
-    $valid = $true
-    if ($result.Status -eq "Running"){
-
-    }
-    else {
-      $valid = $false
-      writeln "Step 3. FAILED, Coveo.CrawlingModules Service is NOT started." Red
-    }
-  } 
-}
-catch {
-}
-If ($valid) {
-  writeln "Step 3. Valid" Green
-}
-else {
-  writeln "Step 3. FAILED, Coveo.CrawlingModules Service is not there or not started, re-install." Red
-  $failures = $true
-}
-writeln "========================================="
-
-
-writeln "Step 4. Checking Docker Service is running."
-$valid = $false
-try {
-  $result = Get-Service | Where-Object {$_.Name -like  "*Docker*"}
-  If ($result) {
-    $valid = $true
-    if ($result.Status -eq "Running"){
-
-    }
-    else {
-      $valid = $false
-      writeln "Step 4. FAILED, Docker Service is NOT started." Red
-    }
-  } 
-}
-catch {
-}
-If ($valid) {
   writeln "Step 4. Valid" Green
 }
 else {
-  writeln "Step 4. FAILED, Docker Service is not there or is not started, re-install." Red
+  writeln "Step 4. FAILED, No worker is running." Red
   $failures = $true
 }
 writeln "========================================="
+
 
 
 writeln "Step 5. Checking Event Log for problems with MySql."
